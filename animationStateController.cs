@@ -5,43 +5,39 @@ using UnityEngine;
 public class animationStateController : MonoBehaviour
 {
     Animator animator;
-    int isWalkingHash;
-    int isRunningHash;
+    float velocity = 0.0f;
+    public float acceleration = 0.1f;
+    public float deceleration = 0.5f;
+    int VelocityHash;
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
 
-        isWalkingHash = Animator.StringToHash("isWalking");
-        isRunningHash = Animator.StringToHash("isRunning");
+        VelocityHash = Animator.StringToHash("Velocity");
     }
 
     // Update is called once per frame
     void Update()
     {
-        bool isrunning = animator.GetBool(isRunningHash);
-        bool isWalking = animator.GetBool(isWalkingHash);
+     
         bool forwardPressed = Input.GetKey("w");
         bool runPressed = Input.GetKey("left shift");
 
-        if (!isWalking && forwardPressed)//if w pressed
+        if ( velocity < 1.0f && forwardPressed)//if w pressed
         {
-            animator.SetBool(isWalkingHash, true);
+            velocity += Time.deltaTime * acceleration;
         }
 
-        if (isWalking && !forwardPressed)// if w not pressed
+        if ( velocity > 0.0f && !forwardPressed)// if w not pressed
         {
-            animator.SetBool(isWalkingHash, false);
+            velocity -= Time.deltaTime * deceleration;
         }
 
-        if(!isrunning && !(!forwardPressed || !runPressed))// if player walk and pressed left shift
+        if ( !forwardPressed && velocity < 0.0f)// if player stop run or walk
         {
-            animator.SetBool(isRunningHash, true);
+            velocity = 0.0f; 
         }
-
-        if(isrunning && (!forwardPressed || !runPressed))// if player stop run or walk
-        {
-            animator.SetBool(isRunningHash, false);
-        }
+        animator.SetFloat(VelocityHash, velocity);
     }
 }
